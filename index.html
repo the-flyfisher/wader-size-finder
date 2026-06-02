@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wader Size Finder — The Flyfisher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #173F35;
+    --green-mid: #1e5247;
+    --green-pale: #eaf2f0;
+    --white: #ffffff;
+    --bg: #f0f2f1;
+    --border: #dde4e2;
+    --text: #111;
+    --muted: #6b7a77;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 15px;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--green);
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  header img { height: 44px; width: auto; }
+  header .htext h1 { color: #fff; font-size: 1.25rem; font-weight: 800; letter-spacing: -0.01em; }
+  header .htext p  { color: rgba(255,255,255,0.65); font-size: 0.8rem; margin-top: 2px; }
+
+  /* ── Layout ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 28px 16px 48px; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 28px 28px 32px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    margin-bottom: 24px;
+  }
+  .card h2 {
+    font-size: 1rem; font-weight: 700; color: var(--green);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 20px;
+  }
+
+  /* ── Gender toggle ── */
+  .gender-toggle {
+    display: inline-flex;
+    border: 2px solid var(--green);
+    border-radius: 9px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .gender-toggle button {
+    padding: 9px 30px;
+    border: none; background: transparent;
+    color: var(--green); font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.15s;
+    font-family: inherit;
+  }
+  .gender-toggle button.active { background: var(--green); color: #fff; }
+
+  /* ── Tip ── */
+  .tip {
+    background: var(--green-pale);
+    border-left: 3px solid var(--green);
+    padding: 11px 15px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: var(--green-mid);
+    margin-bottom: 22px;
+    line-height: 1.5;
+  }
+
+  /* ── Input grid ── */
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  @media (max-width: 680px) {
+    .input-grid { grid-template-columns: 1fr 1fr; }
+    .shoe-wrap  { grid-column: span 2; }
+  }
+  @media (max-width: 400px) {
+    .input-grid { grid-template-columns: 1fr; }
+    .shoe-wrap  { grid-column: span 1; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 0.75rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .field label em { font-weight: 400; font-style: normal; text-transform: none; letter-spacing: 0; }
+  .field input, .field select {
+    padding: 10px 13px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    color: var(--text);
+  }
+  .field input:focus, .field select:focus { border-color: var(--green); }
+  .field input::placeholder { color: #bbb; }
+
+  .shoe-row { display: flex; gap: 8px; }
+  .shoe-row input  { flex: 1; min-width: 0; }
+  .shoe-row select { width: 80px; flex-shrink: 0; }
+
+  /* ── Button ── */
+  .btn-find {
+    width: 100%;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 9px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: background 0.15s;
+  }
+  .btn-find:hover { background: var(--green-mid); }
+
+  /* ── Results ── */
+  #results { display: none; }
+  #results.show { display: block; }
+
+  .summary-bar {
+    background: var(--green);
+    color: rgba(255,255,255,0.8);
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 24px;
+    align-items: center;
+  }
+  .summary-bar strong { color: #fff; }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 600px) { .results-grid { grid-template-columns: 1fr; } }
+
+  /* ── Brand card ── */
+  .brand-card {
+    background: var(--white);
+    border-radius: 14px;
+    padding: 24px 20px 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .logo-box {
+    width: 100%;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    background: #f7f7f5;
+    border-radius: 8px;
+    padding: 8px 16px;
+  }
+  .logo-box img {
+    max-height: 42px;
+    max-width: 130px;
+    object-fit: contain;
+  }
+  .size-eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .size-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--green);
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .size-detail {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+    min-height: 18px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .badge-exact  { background: #e5f5ea; color: #1e7e34; }
+  .badge-good   { background: #fff3e0; color: #c05b00; }
+  .badge-up     { background: #e8f0fe; color: #1a56c4; }
+  .no-result    { font-size: 0.875rem; color: var(--muted); font-style: italic; line-height: 1.5; }
+
+  /* ── Recommended Waders ── */
+  .rec-section { margin-bottom: 20px; }
+  .rec-heading {
+    font-size: 0.85rem; font-weight: 700; color: var(--green);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 16px;
+  }
+  .rec-category { margin-bottom: 22px; }
+  .rec-category h3 {
+    font-size: 0.95rem; font-weight: 700; color: var(--green);
+    margin-bottom: 12px; padding-left: 2px;
+  }
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 500px) { .rec-grid { grid-template-columns: 1fr; } }
+  .wader-card {
+    display: flex; flex-direction: column;
+    background: var(--white);
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    text-decoration: none; color: var(--text);
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .wader-card:hover {
+    box-shadow: 0 6px 18px rgba(23,63,53,0.14);
+    transform: translateY(-2px);
+  }
+  .wader-card img {
+    width: 100%; aspect-ratio: 3/4;
+    object-fit: cover; object-position: center;
+    background: #eef0ef; display: block;
+  }
+  .wader-info { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .price-tier { font-size: 0.78rem; font-weight: 800; color: var(--green); letter-spacing: 0.04em; }
+  .wader-name { font-size: 0.85rem; font-weight: 600; line-height: 1.35; color: var(--text); }
+
+  /* ── Contact note ── */
+  .contact-note {
+    background: var(--green);
+    color: #fff;
+    border-radius: 12px;
+    padding: 18px 24px;
+    text-align: center;
+    font-size: 0.92rem;
+  }
+  .contact-note strong { display: block; font-size: 1rem; margin-bottom: 4px; }
+  .contact-note a { color: rgba(255,255,255,0.85); text-decoration: underline; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    padding: 0 16px 24px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="Flyfisher_logotype_whiteHiRes.png" alt="The Flyfisher">
+  <div class="htext">
+    <h1>Wader Size Finder</h1>
+    <p>Simms · Skwala · Orvis</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Your Measurements</h2>
+
+    <div class="gender-toggle">
+      <button id="btn-men" class="active" onclick="setGender('men')">Men's</button>
+      <button id="btn-women" onclick="setGender('women')">Women's</button>
+    </div>
+
+    <div class="tip">
+      Measure your <strong>chest, stomach, and hips</strong> separately — we use the largest of the three to find your fit.
+      For women, include your bust measurement as your chest figure.
+      Measure your inseam from the crotch to the floor, standing barefoot.
+    </div>
+
+    <div class="input-grid">
+      <div class="field">
+        <label>Chest <em>(cm)</em></label>
+        <input type="number" id="chest" placeholder="e.g. 102" min="60" max="200" step="1">
+      </div>
+      <div class="field">
+        <label>Stomach <em>(cm)</em></label>
+        <input type="number" id="stomach" placeholder="e.g. 96" min="60" max="200" step="1">
+      </div>
+      <div class="field">
+        <label>Hips <em>(cm)</em></label>
+        <input type="number" id="hips" placeholder="e.g. 100" min="60" max="200" step="1">
+      </div>
+      <div class="field">
+        <label>Inseam <em>(cm)</em></label>
+        <input type="number" id="inseam" placeholder="e.g. 82" min="50" max="120" step="1">
+      </div>
+      <div class="field shoe-wrap">
+        <label>Shoe Size</label>
+        <div class="shoe-row">
+          <input type="number" id="shoe" placeholder="e.g. 10" min="3" max="50" step="0.5">
+          <select id="shoe-unit">
+            <option value="us">US</option>
+            <option value="uk">UK</option>
+            <option value="euro">Euro</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-find" onclick="findSize()">Find My Size</button>
+  </div>
+
+  <div id="results">
+    <div class="summary-bar" id="summary-bar"></div>
+    <div class="results-grid">
+      <div class="brand-card">
+        <div class="logo-box"><img src="Simms_Fishing_Products_Logo.png" alt="Simms"></div>
+        <div id="simms-out"></div>
+      </div>
+      <div class="brand-card">
+        <div class="logo-box"><img src="Skwala-logo.jpeg" alt="Skwala"></div>
+        <div id="skwala-out"></div>
+      </div>
+      <div class="brand-card">
+        <div class="logo-box"><img src="Orvis-Logo.wine.png" alt="Orvis"></div>
+        <div id="orvis-out"></div>
+      </div>
+    </div>
+    <!-- Men's recommended waders -->
+    <div id="rec-men" class="rec-section">
+      <h2 class="rec-heading">Recommended Waders</h2>
+
+      <div class="rec-category">
+        <h3>Best Overall</h3>
+        <div class="rec-grid">
+          <a href="https://theflyfisher.com.au/products/simms-freestone-stockingfoot-wader-2024" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmsfreestonewader.jpg" alt="Simms Freestone Stockingfoot Waders">
+            <div class="wader-info"><span class="price-tier">$</span><span class="wader-name">Simms Freestone Stockingfoot Waders</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/skwala-carbon-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="skwalacarbonwader.jpg" alt="Skwala Carbon Waders">
+            <div class="wader-info"><span class="price-tier">$$</span><span class="wader-name">Skwala Carbon Waders</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/new-2022-simms-g3-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmsg3guidewader.jpg" alt="Simms G3 Guide Waders">
+            <div class="wader-info"><span class="price-tier">$$$</span><span class="wader-name">Simms G3 Guide Waders</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="rec-category">
+        <h3>Most Durable</h3>
+        <div class="rec-grid">
+          <a href="https://theflyfisher.com.au/products/simms-freestone-stockingfoot-wader-2024" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmsfreestonewader.jpg" alt="Simms Freestone Waders">
+            <div class="wader-info"><span class="price-tier">$</span><span class="wader-name">Simms Freestone Waders</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/skwala-carbon-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="skwalacarbonwader.jpg" alt="Skwala Carbon Waders">
+            <div class="wader-info"><span class="price-tier">$$</span><span class="wader-name">Skwala Carbon Waders</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/orvis-pro-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="orvisprowader.jpg" alt="Orvis Pro Waders">
+            <div class="wader-info"><span class="price-tier">$$$</span><span class="wader-name">Orvis Pro Waders</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="rec-category">
+        <h3>Most Comfortable</h3>
+        <div class="rec-grid">
+          <a href="https://theflyfisher.com.au/products/simms-tributary-waders-basalt" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmstributarywader.jpg" alt="Simms Tributary Waders">
+            <div class="wader-info"><span class="price-tier">$</span><span class="wader-name">Simms Tributary Waders</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/orvis-ultralight-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="orvisultralightwader.jpg" alt="Orvis Ultralight Waders">
+            <div class="wader-info"><span class="price-tier">$$</span><span class="wader-name">Orvis Ultralight Waders</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/new-2022-simms-g3-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmsg3guidewader.jpg" alt="Simms G3 Guide Waders">
+            <div class="wader-info"><span class="price-tier">$$$</span><span class="wader-name">Simms G3 Guide Waders</span></div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Women's recommended waders -->
+    <div id="rec-women" class="rec-section" style="display:none">
+      <h2 class="rec-heading">Recommended Waders</h2>
+
+      <div class="rec-category">
+        <h3>Best Overall</h3>
+        <div class="rec-grid">
+          <a href="https://theflyfisher.com.au/products/simms-womens-tributary-wader" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmswomestributarywader.jpg" alt="Simms Women's Tributary Wader">
+            <div class="wader-info"><span class="price-tier">$</span><span class="wader-name">Simms Women's Tributary Wader</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/orvis-womens-ultralight-waders" target="_blank" rel="noopener" class="wader-card">
+            <img src="orviswomensultralightwader.jpg" alt="Orvis Ultralight Women's Wader">
+            <div class="wader-info"><span class="price-tier">$$</span><span class="wader-name">Orvis Ultralight Women's Wader</span></div>
+          </a>
+          <a href="https://theflyfisher.com.au/products/simms-womens-g3-wader" target="_blank" rel="noopener" class="wader-card">
+            <img src="simmswomensg3wader.jpg" alt="Simms Women's G3 Guide Wader">
+            <div class="wader-info"><span class="price-tier">$$$</span><span class="wader-name">Simms Women's G3 Guide Wader</span></div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-note">
+      <strong>Not sure of your size?</strong>
+      Call us on <a href="tel:0396211246">(03) 9621 1246</a> or visit us in South Melbourne or in Yea
+    </div>
+  </div>
+</div>
+
+<footer>
+  Sizing based on brand specifications, converted to centimetres. Fit may vary between individual garments and styles.<br>
+  When in doubt, size up — a little extra length makes a real difference on the water.
+</footer>
+
+<script>
+// ── Shoe conversion tables ──────────────────────────────────
+const MEN_SHOE = [
+  {us:6,  uk:5,   euro:39  },
+  {us:7,  uk:6,   euro:40  },
+  {us:8,  uk:7,   euro:41  },
+  {us:9,  uk:8,   euro:42.5},
+  {us:9.5,uk:8.5, euro:43  },
+  {us:10, uk:9,   euro:43.5},
+  {us:11, uk:10,  euro:45  },
+  {us:12, uk:11,  euro:46  },
+  {us:13, uk:12,  euro:47  },
+  {us:14, uk:13,  euro:48  },
+];
+const WOMEN_SHOE = [
+  {us:5,  uk:3, euro:35.5},
+  {us:6,  uk:4, euro:36.5},
+  {us:7,  uk:5, euro:37.5},
+  {us:8,  uk:6, euro:38.5},
+  {us:9,  uk:7, euro:39.5},
+  {us:10, uk:8, euro:40.5},
+];
+
+function toUSShoe(size, unit, gender) {
+  if (unit === 'us') return size;
+  const tbl = gender === 'women' ? WOMEN_SHOE : MEN_SHOE;
+  return tbl.reduce((b, r) => Math.abs(r[unit]-size) < Math.abs(b[unit]-size) ? r : b).us;
+}
+
+// ── Scoring helpers ─────────────────────────────────────────
+// Asymmetric: over the top of a range is worse than under
+function girthP(v, lo, hi) {
+  if (v >= lo && v <= hi) return 0;
+  return v > hi ? (v - hi) * 3 : (lo - v) * 1;
+}
+function inseamP(v, lo, hi) {
+  if (v >= lo && v <= hi) return 0;
+  return v > hi ? (v - hi) * 2.5 : (lo - v) * 0.4;
+}
+function inseamMaxP(v, max) {         // for "up to X" style entries
+  return v > max ? (v - max) * 2.5 : (max - v) * 0.2;
+}
+function shoeP(v, lo, hi) {
+  if (v >= lo && v <= hi) return 0;
+  return v > hi ? (v - hi) * 1.5 : (lo - v) * 1.5;
+}
+function simmsWomenGirthP(v, point) { // single-point girth
+  return v > point ? (v - point) * 3 : (point - v) * 0.4;
+}
+
+// ── Sizing data ─────────────────────────────────────────────
+
+const SIMMS_MEN = [
+  // Short cut
+  {size:'M (Short)',        iLo:79,iHi:81, gLo:99, gHi:102,sLo:9, sHi:11},
+  {size:'M King (Short)',   iLo:79,iHi:81, gLo:104,gHi:107,sLo:9, sHi:11},
+  {size:'L (Short)',        iLo:79,iHi:81, gLo:109,gHi:112,sLo:9, sHi:11},
+  {size:'L King (Short)',   iLo:79,iHi:81, gLo:114,gHi:117,sLo:9, sHi:11},
+  {size:'XL (Short)',       iLo:84,iHi:86, gLo:119,gHi:122,sLo:9, sHi:11},
+  // Regular cut
+  {size:'S (Regular)',      iLo:79,iHi:81, gLo:89, gHi:91, sLo:7, sHi:8 },
+  {size:'S King (Regular)', iLo:79,iHi:81, gLo:94, gHi:97, sLo:8, sHi:9 },
+  {size:'M (Regular)',      iLo:84,iHi:86, gLo:99, gHi:102,sLo:9, sHi:11},
+  {size:'M King (Regular)', iLo:84,iHi:86, gLo:104,gHi:107,sLo:9, sHi:11},
+  {size:'L (Regular)',      iLo:84,iHi:86, gLo:109,gHi:112,sLo:9, sHi:11},
+  {size:'L 12–13 (Regular)',iLo:84,iHi:86, gLo:109,gHi:112,sLo:12,sHi:13},
+  {size:'L King (Regular)', iLo:84,iHi:86, gLo:114,gHi:117,sLo:9, sHi:11},
+  {size:'XL 12–13 (Reg)',   iLo:89,iHi:91, gLo:119,gHi:122,sLo:12,sHi:13},
+  {size:'XL King 12–13',    iLo:89,iHi:91, gLo:124,gHi:127,sLo:12,sHi:13},
+  {size:'2XL 12–13',        iLo:89,iHi:91, gLo:130,gHi:132,sLo:12,sHi:13},
+  // Long cut
+  {size:'M (Long)',          iLo:89,iHi:91, gLo:99, gHi:102,sLo:9, sHi:11},
+  {size:'L (Long)',          iLo:89,iHi:91, gLo:109,gHi:112,sLo:9, sHi:11},
+  {size:'L 12–13 (Long)',    iLo:89,iHi:91, gLo:109,gHi:112,sLo:12,sHi:13},
+  {size:'XL 12–13 (Long)',   iLo:94,iHi:97, gLo:119,gHi:122,sLo:12,sHi:13},
+];
+
+const SIMMS_WOMEN = [
+  {size:'S (Short)',       iLo:71,iHi:74, g:94,  sLo:6,sHi:7 },
+  {size:'S (Regular)',     iLo:79,iHi:81, g:94,  sLo:6,sHi:7 },
+  {size:'S Full (Regular)',iLo:79,iHi:81, g:97,  sLo:6,sHi:7 },
+  {size:'M (Short)',       iLo:71,iHi:74, g:99,  sLo:8,sHi:9 },
+  {size:'M (Regular)',     iLo:79,iHi:81, g:99,  sLo:8,sHi:9 },
+  {size:'M Full (Regular)',iLo:79,iHi:81, g:102, sLo:8,sHi:9 },
+  {size:'M Tall',          iLo:84,iHi:86, g:99,  sLo:8,sHi:9 },
+  {size:'L (Short)',       iLo:71,iHi:74, g:104, sLo:9,sHi:10},
+  {size:'L (Regular)',     iLo:79,iHi:81, g:104, sLo:9,sHi:10},
+  {size:'L Full (Regular)',iLo:79,iHi:81, g:109, sLo:9,sHi:10},
+  {size:'L Tall',          iLo:84,iHi:86, g:104, sLo:9,sHi:10},
+  {size:'XL (Regular)',    iLo:79,iHi:81, g:114, sLo:9,sHi:10},
+  {size:'2XL (Regular)',   iLo:79,iHi:81, g:124, sLo:9,sHi:10},
+];
+
+// Skwala men's only — no women's range
+const SKWALA_MEN = [
+  {size:'Medium Short',cLo:94, cHi:102,wLo:81, wHi:86, iLo:71,iHi:79,sLo:9, sHi:11},
+  {size:'Medium',      cLo:94, cHi:102,wLo:81, wHi:86, iLo:79,iHi:84,sLo:9, sHi:11},
+  {size:'Medium Tall', cLo:94, cHi:102,wLo:81, wHi:86, iLo:86,iHi:91,sLo:9, sHi:11},
+  {size:'Large Short', cLo:104,cHi:112,wLo:89, wHi:97, iLo:71,iHi:79,sLo:9, sHi:11},
+  {size:'Large',       cLo:104,cHi:112,wLo:89, wHi:97, iLo:79,iHi:84,sLo:9, sHi:14},
+  {size:'Large Tall',  cLo:104,cHi:112,wLo:89, wHi:97, iLo:86,iHi:91,sLo:9, sHi:14},
+  {size:'XL Short',    cLo:114,cHi:122,wLo:99, wHi:107,iLo:71,iHi:79,sLo:9, sHi:11},
+  {size:'XL',          cLo:114,cHi:122,wLo:99, wHi:107,iLo:79,iHi:84,sLo:9, sHi:14},
+  {size:'XL Tall',     cLo:114,cHi:122,wLo:99, wHi:107,iLo:86,iHi:91,sLo:9, sHi:14},
+  {size:'2XL',         cLo:124,cHi:132,wLo:109,wHi:117,iLo:79,iHi:84,sLo:12,sHi:14},
+];
+
+// Orvis men's — "inseam up to" style
+const ORVIS_MEN = [
+  {size:'Small',        cLo:86, cHi:91, iMax:76,sLo:7, sHi:9 },
+  {size:'Medium/Short', cLo:97, cHi:102,iMax:76,sLo:8, sHi:10},
+  {size:'Medium',       cLo:97, cHi:102,iMax:81,sLo:9, sHi:11},
+  {size:'Medium King',  cLo:102,cHi:107,iMax:81,sLo:9, sHi:11},
+  {size:'Medium/Long',  cLo:97, cHi:102,iMax:86,sLo:10,sHi:12},
+  {size:'Large/Short',  cLo:107,cHi:112,iMax:76,sLo:9, sHi:11},
+  {size:'Large',        cLo:107,cHi:112,iMax:81,sLo:10,sHi:12},
+  {size:'Large King',   cLo:112,cHi:117,iMax:81,sLo:10,sHi:12},
+  {size:'Large/Long',   cLo:107,cHi:112,iMax:86,sLo:11,sHi:13},
+  {size:'Large/XLong',  cLo:107,cHi:112,iMax:91,sLo:12,sHi:14},
+  {size:'XL/Short',     cLo:117,cHi:122,iMax:76,sLo:10,sHi:12},
+  {size:'XL',           cLo:117,cHi:122,iMax:81,sLo:10,sHi:12},
+  {size:'XL/Long',      cLo:117,cHi:122,iMax:86,sLo:11,sHi:13},
+  {size:'XL/XLong',     cLo:117,cHi:122,iMax:91,sLo:12,sHi:14},
+  {size:'XXL/Short',    cLo:127,cHi:132,iMax:76,sLo:11,sHi:13},
+  {size:'XXL',          cLo:127,cHi:132,iMax:81,sLo:11,sHi:13},
+];
+
+// Orvis women's
+const ORVIS_WOMEN = [
+  {size:'XS/Petite',    bLo:85, bHi:88, wLo:65, wHi:67, hLo:90, hHi:93, iMax:76,sLo:5,sHi:7 },
+  {size:'XS',           bLo:85, bHi:88, wLo:65, wHi:67, hLo:90, hHi:93, iMax:81,sLo:5,sHi:7 },
+  {size:'Small/Petite', bLo:90, bHi:93, wLo:70, wHi:72, hLo:95, hHi:98, iMax:76,sLo:6,sHi:8 },
+  {size:'Small',        bLo:90, bHi:93, wLo:70, wHi:72, hLo:95, hHi:98, iMax:81,sLo:6,sHi:8 },
+  {size:'Small/Tall',   bLo:90, bHi:93, wLo:70, wHi:72, hLo:95, hHi:98, iMax:86,sLo:7,sHi:9 },
+  {size:'Medium/Petite',bLo:95, bHi:99, wLo:75, wHi:79, hLo:100,hHi:104,iMax:76,sLo:7,sHi:9 },
+  {size:'Medium',       bLo:95, bHi:99, wLo:75, wHi:79, hLo:100,hHi:104,iMax:81,sLo:7,sHi:9 },
+  {size:'Medium/Tall',  bLo:95, bHi:99, wLo:75, wHi:79, hLo:100,hHi:104,iMax:86,sLo:8,sHi:10},
+  {size:'Large/Petite', bLo:103,bHi:107,wLo:83, wHi:86, hLo:108,hHi:112,iMax:76,sLo:7,sHi:9 },
+  {size:'Large',        bLo:103,bHi:107,wLo:83, wHi:86, hLo:108,hHi:112,iMax:81,sLo:7,sHi:9 },
+  {size:'Large/Tall',   bLo:103,bHi:107,wLo:83, wHi:86, hLo:108,hHi:112,iMax:86,sLo:9,sHi:11},
+  {size:'XL/Petite',    bLo:112,bHi:117,wLo:91, wHi:97, hLo:117,hHi:122,iMax:76,sLo:8,sHi:10},
+  {size:'XL',           bLo:112,bHi:117,wLo:91, wHi:97, hLo:117,hHi:122,iMax:81,sLo:9,sHi:10},
+  {size:'XL/Tall',      bLo:112,bHi:117,wLo:91, wHi:97, hLo:117,hHi:122,iMax:86,sLo:9,sHi:11},
+  {size:'XXL/Petite',   bLo:122,bHi:127,wLo:102,wHi:107,hLo:127,hHi:132,iMax:76,sLo:8,sHi:10},
+  {size:'XXL',          bLo:122,bHi:127,wLo:102,wHi:107,hLo:127,hHi:132,iMax:81,sLo:9,sHi:11},
+];
+
+// ── Match functions ─────────────────────────────────────────
+
+function bestMatch(scores) {
+  return scores.reduce((b, r) => r.score < b.score ? r : b);
+}
+
+function matchSimmsMen(girth, inseam, shoe) {
+  return bestMatch(SIMMS_MEN.map(s => ({
+    ...s,
+    score: girthP(girth,s.gLo,s.gHi)*3 + inseamP(inseam,s.iLo,s.iHi)*2 + shoeP(shoe,s.sLo,s.sHi)
+  })));
+}
+
+function matchSimmsWomen(girth, inseam, shoe) {
+  return bestMatch(SIMMS_WOMEN.map(s => ({
+    ...s,
+    score: simmsWomenGirthP(girth,s.g)*3 + inseamP(inseam,s.iLo,s.iHi)*2 + shoeP(shoe,s.sLo,s.sHi)
+  })));
+}
+
+function matchSkwalaMen(chest, waist, inseam, shoe) {
+  return bestMatch(SKWALA_MEN.map(s => ({
+    ...s,
+    score: girthP(chest,s.cLo,s.cHi)*2.5 + girthP(waist,s.wLo,s.wHi)*2 + inseamP(inseam,s.iLo,s.iHi)*2 + shoeP(shoe,s.sLo,s.sHi)
+  })));
+}
+
+function matchOrvisMen(girth, inseam, shoe) {
+  return bestMatch(ORVIS_MEN.map(s => ({
+    ...s,
+    score: girthP(girth,s.cLo,s.cHi)*3 + inseamMaxP(inseam,s.iMax)*2 + shoeP(shoe,s.sLo,s.sHi)
+  })));
+}
+
+function matchOrvisWomen(bust, waist, hip, inseam, shoe) {
+  return bestMatch(ORVIS_WOMEN.map(s => ({
+    ...s,
+    score: girthP(bust,s.bLo,s.bHi)*2 + girthP(waist,s.wLo,s.wHi)*2 + girthP(hip,s.hLo,s.hHi)*2 + inseamMaxP(inseam,s.iMax)*2 + shoeP(shoe,s.sLo,s.sHi)
+  })));
+}
+
+// ── Render helpers ──────────────────────────────────────────
+
+function badge(score) {
+  if (score === 0) return '<span class="badge badge-exact">Exact match</span>';
+  if (score <= 6)  return '<span class="badge badge-good">Good match — try before buying</span>';
+  return               '<span class="badge badge-up">Nearest available — sized up</span>';
+}
+
+function sizeHTML(r, detail) {
+  return `
+    <div class="size-eyebrow">Recommended Size</div>
+    <div class="size-name">${r.size}</div>
+    <div class="size-detail">${detail || ''}</div>
+    ${badge(r.score)}`;
+}
+
+// ── State & UI ──────────────────────────────────────────────
+
+let gender = 'men';
+
+function setGender(g) {
+  gender = g;
+  document.getElementById('btn-men').classList.toggle('active', g === 'men');
+  document.getElementById('btn-women').classList.toggle('active', g === 'women');
+  document.getElementById('results').classList.remove('show');
+}
+
+function val(id) { return parseFloat(document.getElementById(id).value); }
+
+function findSize() {
+  const chest   = val('chest');
+  const stomach = val('stomach');
+  const hips    = val('hips');
+  const inseam  = val('inseam');
+  const shoeRaw = val('shoe');
+  const shoeUnit = document.getElementById('shoe-unit').value;
+
+  if ([chest, stomach, hips, inseam, shoeRaw].some(isNaN)) {
+    alert('Please fill in all five measurements before finding your size.');
+    return;
+  }
+
+  const girth  = Math.max(chest, stomach, hips);
+  const shoeUS = toUSShoe(shoeRaw, shoeUnit, gender);
+  const largestLabel = girth === chest ? 'chest' : girth === stomach ? 'stomach' : 'hips';
+
+  // Summary bar
+  const unitLabel = shoeUnit === 'us' ? 'US' : shoeUnit === 'uk' ? 'UK' : 'Euro';
+  document.getElementById('summary-bar').innerHTML =
+    `Largest girth (<em>${largestLabel}</em>): <strong>${girth} cm</strong> &nbsp;·&nbsp; ` +
+    `Inseam: <strong>${inseam} cm</strong> &nbsp;·&nbsp; ` +
+    `Shoe: <strong>${shoeRaw} ${unitLabel}</strong>${shoeUnit !== 'us' ? ` = US ${shoeUS}` : ''}`;
+
+  // Simms
+  let simmsHTML;
+  if (gender === 'men') {
+    const r = matchSimmsMen(girth, inseam, shoeUS);
+    simmsHTML = sizeHTML(r, 'Stockingfoot');
+  } else {
+    const r = matchSimmsWomen(girth, inseam, shoeUS);
+    simmsHTML = sizeHTML(r, 'Stockingfoot');
+  }
+
+  // Skwala
+  let skwalaHTML;
+  if (gender === 'men') {
+    const r = matchSkwalaMen(chest, stomach, inseam, shoeUS);
+    skwalaHTML = sizeHTML(r, 'Chest & waist matched separately');
+  } else {
+    skwalaHTML = `<div class="no-result">Skwala does not currently make women's waders.</div>`;
+  }
+
+  // Orvis
+  let orvisHTML;
+  if (gender === 'men') {
+    const r = matchOrvisMen(girth, inseam, shoeUS);
+    orvisHTML = sizeHTML(r, 'PRO, Ultralight & Clearwater');
+  } else {
+    const r = matchOrvisWomen(chest, stomach, hips, inseam, shoeUS);
+    orvisHTML = sizeHTML(r, 'PRO, Ultralight & Clearwater');
+  }
+
+  document.getElementById('simms-out').innerHTML  = simmsHTML;
+  document.getElementById('skwala-out').innerHTML = skwalaHTML;
+  document.getElementById('orvis-out').innerHTML  = orvisHTML;
+
+  document.getElementById('rec-men').style.display   = gender === 'men'   ? '' : 'none';
+  document.getElementById('rec-women').style.display = gender === 'women' ? '' : 'none';
+
+  const el = document.getElementById('results');
+  el.classList.add('show');
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

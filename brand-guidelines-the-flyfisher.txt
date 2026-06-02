@@ -1,0 +1,331 @@
+# The Flyfisher — Brand Guidelines for Web Applications
+
+This file provides Claude Code with the brand rules for building The Flyfisher web applications. Follow these specifications precisely to maintain brand consistency.
+
+---
+
+## Brand Overview
+
+**Brand name:** The Flyfisher  
+**Website:** theflyfisher.com.au  
+**Established:** 1967  
+**Physical store:** 211 Moray St, South Melbourne VIC 3205  
+**Phone:** (03) 9621 1246  
+**Platform:** Shopify (store ID `52057931958`)  
+**Tone:** Premium, outdoors, heritage — bold yet refined. Fly fishing is a craft and lifestyle; the brand should feel authoritative and timeless, not trendy.
+
+### Brand Value Propositions (use in UI copy)
+- "FAST SHIPPING — Australia's quickest fly gear delivery."
+- "FISH MORE, PAY LESS — We'll beat any local fly shop's price."
+- "365 DAY RETURNS — On every product we sell"
+
+---
+
+## Colour Palette
+
+### Primary Colours
+
+| Name | Pantone | Hex | RGB | Usage |
+|------|---------|-----|-----|-------|
+| Forest Green | 567 C | `#1B4332` | 27, 67, 50 | Primary brand colour. Backgrounds, headers, CTAs, nav |
+| Golden Yellow | PMS 123 C | `#FFC72C` | 255, 199, 44 | Accent colour. Highlights, badges, hover states, icons. **Note:** the live site renders this as `#fec227` in some elements — both are acceptable; use `#FFC72C` as the canonical value. |
+
+### Secondary Colours
+
+| Name | Hex | RGB | Usage |
+|------|-----|-----|-------|
+| Russian Green | `#688662` | 104, 134, 98 | Subtle accents, borders, secondary UI elements |
+| Deep Black-Green | `#002000` | 0, 32, 0 | Deep backgrounds, footers, dark mode surfaces |
+
+### Neutrals (recommended for web)
+
+| Name | Hex | Usage |
+|------|-----|-------|
+| Off-white | `#F8F5EF` | Page backgrounds on light layouts |
+| Warm white | `#FFFFFF` | Cards, modals |
+| Dark text | `#1A1A1A` | Body copy on light backgrounds |
+| Light text | `#FFFFFF` | Body copy on dark/green backgrounds |
+
+### Colour Usage Rules
+
+- The primary dark green (`#1B4332`) should dominate. It is the brand's anchor colour.
+- Golden yellow (`#FFC72C`) is an accent — use sparingly for emphasis, never as a large background field.
+- Never pair golden yellow text on white; always use it on dark green or black backgrounds.
+- Russian Green (`#688662`) works well for disabled states, secondary buttons, and dividers.
+- Deep black-green (`#002000`) suits footers and dark-mode surfaces.
+
+### CSS Custom Properties
+
+```css
+:root {
+  /* Primary */
+  --color-forest-green:     #1B4332;
+  --color-golden-yellow:    #FFC72C;
+
+  /* Secondary */
+  --color-russian-green:    #688662;
+  --color-deep-green:       #002000;
+
+  /* Neutrals */
+  --color-off-white:        #F8F5EF;
+  --color-white:            #FFFFFF;
+  --color-text-dark:        #1A1A1A;
+
+  /* Semantic aliases */
+  --color-bg-primary:       var(--color-forest-green);
+  --color-bg-dark:          var(--color-deep-green);
+  --color-accent:           var(--color-golden-yellow);
+  --color-text-on-dark:     var(--color-white);
+  --color-text-on-light:    var(--color-text-dark);
+  --color-border:           var(--color-russian-green);
+}
+```
+
+---
+
+## Typography
+
+### Font Families
+
+#### Tungsten — Display / Headings / Logo
+- **Type:** Hoefler & Co. condensed sans-serif
+- **Primary weight:** Tungsten Semibold (`-- MAIN --Tungsten-Semibold.otf`)
+- **Full family available:** Thin, ExtraLight, Light, Book, Medium, Semibold, Bold, Black
+- **Variants:** TungstenCompressed, TungstenCondensed, TungstenNarrow (all weights)
+- **Character:** All-caps, wide tracking, bold statement. Use for hero headings, section titles, product names, navigation labels.
+- **Font files location:** `Fonts/Logo Text/`
+
+#### DIN Next W1G — Body / UI
+- **Type:** Geometric sans-serif
+- **Primary weights:** Regular, Medium, Bold
+- **Full family available:** UltraLight, Light, Regular, Medium, Bold, Heavy, Black (+ italics)
+- **Character:** Clean, legible, modern. Use for body copy, labels, inputs, descriptions, metadata.
+- **Font files location:** `Fonts/Website text/`
+
+### Web Font Loading
+
+Since Tungsten and DIN Next are licensed fonts, self-host them via `@font-face`:
+
+```css
+@font-face {
+  font-family: 'Tungsten';
+  src: url('/fonts/Tungsten-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Tungsten';
+  src: url('/fonts/Tungsten-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TungstenCondensed';
+  src: url('/fonts/TungstenCondensed-Semibold.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DINNext';
+  src: url('/fonts/DINNextW1G-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DINNext';
+  src: url('/fonts/DINNextW1G-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DINNext';
+  src: url('/fonts/DINNextW1G-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+```
+
+### Type Scale
+
+```css
+:root {
+  --font-display:  'Tungsten', 'TungstenCondensed', Impact, sans-serif;
+  --font-body:     'DINNext', 'DIN Next W1G', Arial, sans-serif;
+
+  /* Scale */
+  --text-hero:     clamp(4rem, 10vw, 9rem);   /* Hero headings — Tungsten Semibold */
+  --text-h1:       clamp(2.5rem, 5vw, 5rem);  /* Page titles — Tungsten Semibold */
+  --text-h2:       clamp(1.8rem, 3vw, 3rem);  /* Section headings — Tungsten Semibold */
+  --text-h3:       clamp(1.4rem, 2vw, 2rem);  /* Sub-headings — Tungsten Medium or DINNext Bold */
+  --text-body:     1rem;                       /* Body — DINNext Regular */
+  --text-small:    0.875rem;                   /* Labels, captions — DINNext Regular */
+  --text-xs:       0.75rem;                    /* Fine print — DINNext Light */
+}
+```
+
+### Typography Rules
+
+- All Tungsten headings should be **uppercase** (`text-transform: uppercase`).
+- Tungsten looks best with tight or normal letter-spacing (`letter-spacing: -0.01em` to `0.05em`).
+- DIN Next body copy: 1.5–1.7 line height for readability.
+- Never use Tungsten for body text — it is a display-only typeface.
+- Minimum body text size: 14px / 0.875rem.
+
+---
+
+## Logo
+
+### Assets Available
+- `Logos/textonlylogoblack.png` — Black logo on white, horizontal layout
+- `Logos/Flyfisher_logo_white copy.png` — White logo version (use on dark backgrounds)
+- `Logos/Flyfisher_logo_black.png` — Full logo with icon, black
+- `Export/` — Animated logo variants (MP4, GIF, JSON/Lottie)
+
+### Logo Description
+The wordmark is **"THE FLYFISHER"** set in a condensed bold sans-serif (Tungsten family), all caps, with two curved banner lines arching above and below the text — giving it a badge/crest feel. Below sits the URL **"•THEFLYFISHER.COM.AU•"** in wide-tracked small caps.
+
+### Logo Usage Rules
+- Always maintain clear space equal to the cap-height of "THE" on all sides.
+- Use the white version on dark green (`#1B4332`) or black backgrounds.
+- Use the black version on white or off-white (`#F8F5EF`) backgrounds.
+- Never recolour the logo in yellow or any other brand colour.
+- Never stretch, rotate, or add effects to the logo.
+- Minimum width: 120px for digital use.
+
+---
+
+## UI Component Patterns
+
+### Buttons
+
+```css
+/* Primary button */
+.btn-primary {
+  background-color: var(--color-forest-green);
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 2rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-deep-green);
+}
+
+/* Accent button */
+.btn-accent {
+  background-color: var(--color-golden-yellow);
+  color: var(--color-deep-green);
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 2rem;
+  border: none;
+  cursor: pointer;
+}
+
+/* Ghost / outline button */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--color-forest-green);
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.75rem 2rem;
+  border: 2px solid var(--color-forest-green);
+  cursor: pointer;
+}
+```
+
+### Navigation
+
+- Background: `#1B4332` (Forest Green) or `#002000` (Deep Green)
+- Logo: white version
+- Nav links: white, Tungsten Semibold, uppercase, slight letter-spacing
+- Active/hover: `#FFC72C` (Golden Yellow) underline or colour change
+- Mobile hamburger: white icon
+
+### Cards / Product Tiles
+
+- White background with subtle border `#688662` or shadow
+- Product name: Tungsten Semibold, uppercase, Forest Green
+- Body text: DINNext Regular, Dark text (`#1A1A1A`)
+- Price/highlight: Golden Yellow on dark background, or Forest Green on white
+- Hover state: subtle Forest Green border or shadow
+
+### Forms
+
+- Input borders: `#688662` (Russian Green)
+- Focus border: `#1B4332` (Forest Green)
+- Label: DINNext Medium, uppercase, small size
+- Error state: use a muted red — avoid clashing with brand greens
+- Submit buttons: use `.btn-primary` or `.btn-accent`
+
+---
+
+## Layout & Spacing
+
+- Use an 8px base grid (`--space-unit: 8px`)
+- Section padding: `clamp(3rem, 8vw, 8rem)` top/bottom
+- Max content width: `1280px`, centred
+- The brand feels spacious — don't crowd elements; lean into whitespace
+
+---
+
+## Iconography & Imagery
+
+- Icons should be simple, line-based or solid — no gradients or drop shadows
+- Nature/outdoors imagery: rivers, mountains, wildlife, fly fishing scenes
+- Photography treatment: slightly desaturated with a green/cool tone, or high contrast natural light
+- Avoid stock-photo feel — imagery should feel authentic and editorial
+
+---
+
+## Shopify-Specific Notes
+
+When building Shopify themes or custom storefronts for The Flyfisher:
+
+- **Logo asset:** served from CDN at 296×87px (`theflyfisher.com.au/cdn/shop/files/theflyfisherlogo2_296x87.png`)
+- **Navigation is deep** — top-level: Brands, Rods, Reels, Wading, Outfits, Flies, Accessories, Fly Tying, Clothing, Gift Cards, Sale, Boating, More. Design nav components to handle large multi-column dropdowns.
+- **Product cards** should include: image, sale badge ("Save X%"), price (original + current), vendor/brand link, star rating, short description, and "Choose options" or "Add to cart" CTA.
+- **Announcement bar** pattern: rotating trust messages using the three value propositions above.
+- **GTM:** Container `GTM-MPP98LT` — ensure any custom theme additions preserve this.
+
+
+---
+
+## Quick Reference
+
+```
+Primary Green:    #1B4332  (Pantone 567 C)
+Golden Yellow:    #FFC72C  (PMS 123 C)
+Russian Green:    #688662
+Deep Green:       #002000
+
+Display font:     Tungsten Semibold (headings, uppercase only)
+Body font:        DIN Next W1G Regular/Medium/Bold
+
+Logo Square (dark bg):   Logos/Flyfisher_logo_white copy.png
+Logo Square (light bg):  Flyfisher_logo_blackWhiteHiRes.png
+
+Logo Rectangle (dark bg): Flyfisher_logotype_whiteHiRes
+Logo Rectangle (light bg): Flyfisher_logotype_blackHiRes
+
+```
